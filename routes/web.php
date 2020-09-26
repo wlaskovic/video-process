@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,13 +14,8 @@
 */
 
 
-Auth::routes();
+Route::get('/', 'VideoController@index');
 
-Route::group(['middleware' => ['auth']], function(){
+Route::get('/uploader', 'VideoController@uploader')->name('uploader');
 
-    Route::get('/', 'VideoController@index');
-
-    Route::get('/uploader', 'VideoController@uploader')->name('uploader');
-
-    Route::post('/upload', 'VideoController@store')->name('upload');
-});
+Route::post('/upload', 'VideoController@store')->name('upload');

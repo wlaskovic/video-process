@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use FFMpeg;
+use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg as FFMpeg;
 use App\Video;
 use Carbon\Carbon;
 use FFMpeg\Coordinate\Dimension;
@@ -47,7 +47,7 @@ class ConvertVideoForStreaming implements ShouldQueue
 
             // add the 'resize' filter...
             ->addFilter(function ($filters) {
-                $filters->resize(new Dimension(960, 540));
+                $filters->resize(new Dimension(720, 360));
             })
 
             // call the 'export' method...
@@ -55,10 +55,10 @@ class ConvertVideoForStreaming implements ShouldQueue
 
             // tell the MediaExporter to which disk and in which format we want to export...
             ->toDisk('public')
-            ->inFormat($lowBitrateFormat)
+            ->inFormat($lowBitrateFormat);
 
             // call the 'save' method with a filename...
-            ->save($converted_name);
+            // ->save($converted_name);
 
         // update the database so we know the convertion is done!
         $this->video->update([
