@@ -37,8 +37,13 @@ class VideoController extends Controller
     {
         $path = str_random(16) . '.' . $request->video->getClientOriginalExtension();
         $request->video->storeAs('public', $path);
-
+        $response_identifier = str_random(11);
+        while (Video::where('response_identifier', '=', $response_identifier)->exists()) {
+            $response_identifier = str_random(11);
+        }
+        
         $video = Video::create([
+            'response_identifier'            => $response_identifier,
             'disk'          => 'public',
             'original_name' => $request->video->getClientOriginalName(),
             'path'          => $path,
