@@ -12,6 +12,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use FFMpeg\Filters\Video\VideoFilters;
+
 
 class ConvertVideoForStreaming implements ShouldQueue
 {
@@ -54,11 +56,11 @@ class ConvertVideoForStreaming implements ShouldQueue
             ->export()
 
             // tell the MediaExporter to which disk and in which format we want to export...
-            ->toDisk('public')
-            ->inFormat($lowBitrateFormat);
+            ->toDisk('videos')
+            ->inFormat($lowBitrateFormat)
 
             // call the 'save' method with a filename...
-            // ->save($converted_name);
+            ->save($converted_name);
 
         // update the database so we know the convertion is done!
         $this->video->update([

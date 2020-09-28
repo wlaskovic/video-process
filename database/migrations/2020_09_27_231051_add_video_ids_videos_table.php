@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddResponseIdentifierVideosTable extends Migration
+class AddVideoIdsVideosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddResponseIdentifierVideosTable extends Migration
     public function up()
     {
         Schema::table('videos', function (Blueprint $table) {
-            $table->string('response_identifier', 11)->unique();
+            $table->string('video_id', 11)->unique()->after('id');
         });
     }
 
@@ -26,7 +26,7 @@ class AddResponseIdentifierVideosTable extends Migration
     public function down()
     {
         Schema::table('videos', function (Blueprint $table) {
-            $table->dropColumn('response_identifier');
+            $table->dropColumn('video_id');
         });
     }
 }

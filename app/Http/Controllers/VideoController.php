@@ -37,25 +37,19 @@ class VideoController extends Controller
     {
         $path = str_random(16) . '.' . $request->video->getClientOriginalExtension();
         $request->video->storeAs('public', $path);
-        $response_identifier = str_random(11);
-        while (Video::where('response_identifier', '=', $response_identifier)->exists()) {
-            $response_identifier = str_random(11);
+        $video_id = str_random(11);
+        while (Video::where('video_id', '=', $video_id)->exists()) {
+            $video_id = str_random(11);
         }
         
         $video = Video::create([
-            'response_identifier'            => $response_identifier,
+            'video_id'      => $video_id,
             'disk'          => 'public',
             'original_name' => $request->video->getClientOriginalName(),
             'path'          => $path,
             'title'         => $request->title,
         ]);
 
-        ConvertVideoForStreaming::dispatch($video);
-
-        return redirect('/')
-            ->with(
-                'message',
-                'Your video will be available shortly after we process it'
-            );
+        return ConvertVideoForStreaming::dispatch($video) ? response()->json(['video_id' => $video_id], 200) : response()->json('Error');
     }
 }

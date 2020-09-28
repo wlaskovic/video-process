@@ -64,6 +64,12 @@ return [
             'url' => env('AWS_URL'),
         ],
 
+        'videos' => [
+            'driver' => 'local',
+            'root' => storage_path('app/converted_videos'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+        ],
     ],
 
 ];
