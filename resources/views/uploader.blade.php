@@ -14,7 +14,7 @@
                        placeholder="Enter video title">
                 @if($errors->has('title'))
                     <span class="text-danger">
-                        {{$errors->first('title')}}
+                        {{$errors ?? ''->first('title')}}
                     </span>
                 @endif
             </div>
@@ -25,7 +25,7 @@
 
                 @if($errors->has('video'))
                     <span class="text-danger">
-                        {{$errors->first('video')}}
+                        {{$errors ?? ''->first('video')}}
                     </span>
                 @endif
             </div>

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreVideoRequest;
 use App\Jobs\ConvertVideoForStreaming;
 use App\Video;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class VideoController extends Controller
 {
@@ -54,7 +56,22 @@ class VideoController extends Controller
     }
 
     public function retrieve($video_id, $quality = 720, $format = 'mp4') {
-        if (isset($video_id) && !empty($video_id) && Video::where('video_id', '=', $video_id && 'processed', '=', '1')) {
+        $not_found_message = 'The searched video was not found or is still under process, try again few second later!';
+        if (!empty($video_id)) {
+            $check_video_queue = Video::where('video_id', '=', $video_id)->where('processed', '=', '0')->get();
+            if (count($check_video_queue) > 0) {
+                return 
+                response()
+                ->json(
+                    [
+                        'video_link' => url('storage/' . Config::get('app.default_video')),
+                        'message' => $not_found_message
+                    ], 
+                    404,
+                    [],
+                    JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
+            }
+
             if (file_exists(public_path('storage/' . $video_id . '/' . $video_id . '-' . $quality . '.' . $format))) {
                 $video_link = 'storage/' . $video_id . '/' . $video_id . '-' . $quality . '.' . $format;
                 return 
@@ -64,7 +81,22 @@ class VideoController extends Controller
             }
         }
         else {
-            return response()->json(['not_found' => 'The searched video was not found or still under process!'], 404);
+            return response()->json(['message' => $not_found_message], 404);
+        }
+    }
+
+    public function destroy($video_id) {
+        try {
+            if (Storage::exists('converted_videos/' . $video_id)) {
+                Video::where('video_id', $video_id)->delete();
+                Storage::deleteDirectory('converted_videos/' . $video_id);
+                return response()->json(['Successfully deleted'], 200);
+            }
+            else {
+                return response()->json(['No such file or directory'], 404);
+            }
+        } catch (\RunTimeException $e) {
+            dd('Whoops: ' . $e->getMessage());
         }
     }
 }

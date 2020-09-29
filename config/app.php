@@ -17,6 +17,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Default Video
+    |--------------------------------------------------------------------------
+    |
+    | This video file is returned in that case if the retrieved video is still
+    | under progress
+    */
+
+    'default_video' => 'default.mp4',
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
@@ -211,5 +222,10 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'FFMpeg' => Pbmedia\LaravelFFMpeg\FFMpegFacade::class
     ],
+
+    'converted_formats' => [
+        '720' => 'mp4',
+        '360' => 'mp4',
+    ]
 
 ];

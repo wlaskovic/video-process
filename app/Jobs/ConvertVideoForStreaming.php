@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use FFMpeg\Filters\Video\VideoFilters;
+use Illuminate\Support\Facades\Config;
 
 
 class ConvertVideoForStreaming implements ShouldQueue
@@ -44,32 +44,27 @@ class ConvertVideoForStreaming implements ShouldQueue
         $video_name = $this->getCleanFileName($this->video->path);
         $original_extension = pathinfo($this->video->path, PATHINFO_EXTENSION);
         $converted_file = $video_name . '.' . $original_extension;
-        mkdir('storage/app/converted_videos/' . $video_name);
-
-        $converted_formats = [
-            '720' => 'mp4',
-            '360' => 'mp4',
-        ];
-
+        
         // open the uploaded video from the right disk...
         FFMpeg::fromDisk($this->video->disk)
-            ->open($this->video->path)
-
-            // call the 'export' method...
-            ->export()
-
-            // tell the MediaExporter to which disk and in which format we want to export...
-            ->toDisk('videos')
-            ->inFormat($lowBitrateFormat)
-
-            // call the 'save' method with a filename...
-            ->save($converted_file);
-            
+        ->open($this->video->path)
+        
+        // call the 'export' method...
+        ->export()
+        
+        // tell the MediaExporter to which disk and in which format we want to export...
+        ->toDisk('videos')
+        ->inFormat($lowBitrateFormat)
+        
+        // call the 'save' method with a filename...
+        ->save($converted_file);
+        
         //executing the conversion with shell_exec
-
+        
         do {
+            mkdir('storage/app/converted_videos/' . $video_name);
             if (file_exists('storage/app/public/' . $converted_file) && file_exists('storage/app/converted_videos/' . $video_name)) {
-                foreach ($converted_formats as $cf_key => $cf_val) {
+                foreach (Config::get('app.converted_formats') as $cf_key => $cf_val) {
                     $execute_command = 'ffmpeg -i storage/app/public/' . $video_name . '.' . $original_extension . ' -vcodec libx264 -acodec aac -crf 25 -level 3.0 -profile:v baseline -vf scale=-2:' . $cf_key . ' storage/app/converted_videos/' . $video_name . '/' . $video_name . '-' . $cf_key . '.' . $cf_val;
                     echo shell_exec($execute_command);
                 }
