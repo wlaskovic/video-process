@@ -18,6 +18,6 @@ Route::middleware(['checkIp'])->group(function () {
     Route::get('/', 'VideoController@index');
     Route::get('uploader', 'VideoController@uploader')->name('uploader');
     Route::post('upload', 'VideoController@store')->name('upload');
-    Route::get('video/{video_id}/{quality}/{format}', 'VideoController@retrieve')->name('retrieve');
+    Route::get('video/{video_id}/{quality?}/{format?}', 'VideoController@retrieve')->name('retrieve');
     Route::get('video/delete/{video_id?}', 'VideoController@destroy')->name('destroy');
 });
