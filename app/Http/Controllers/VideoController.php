@@ -57,7 +57,7 @@ class VideoController extends Controller
     }
 
     public function retrieve($video_id, $quality = 720, $format = 'mp4') {
-        $not_found_message = 'The searched video was not found or is still under process, try again few seconds later!';
+        $not_found_message = 'The searched video was not found or is still under process, please try again few seconds later!';
 
         if (!empty($video_id) && count(Video::where('video_id', '=', $video_id)->get())) {
 
@@ -91,6 +91,9 @@ class VideoController extends Controller
                     [],
                     JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
             }
+            else {
+                return response()->json(['message' => $not_found_message], 404);
+            }
         }
         else {
             return response()->json(['message' => $not_found_message], 404);
@@ -108,7 +111,7 @@ class VideoController extends Controller
                 return response()->json(['No such file or directory'], 404);
             }
         } catch (\RunTimeException $e) {
-            echo $e->getMessage();
+            report($e);
         }
     }
 }
