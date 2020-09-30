@@ -8,8 +8,10 @@ and converting them into .mp4 and .webm in two formats 720p, 360p.
 The base of this API is forked from waleedahmad laravel-stream project, using FFMpeg library.
 https://ffmpeg.org/download.html
 
-The project, API has 3 main parts:
+The project, API has 3 main parts, enpoints:
     - upload video and convert it to given formats and extensions
+        http://127.0.0.1:8000/uploader - simple form for upload
+        http://127.0.0.1:8000/upload - gives back the uploaded videos video_id
     - retrieve - which gives back the link from the video
         http://127.0.0.1:8000/video/Bv3RwP1Tqir - without parameters - the default is 720p and .mp4
         {
@@ -23,9 +25,14 @@ The project, API has 3 main parts:
             "response": 200
         }
 
-        Otherwise, if the link is broken or doesn't meet the requirements then throws 
-        back a corresponding message.
+        Otherwise, if the link is broken or doesn't meet the requirements or the video is under process
+        then throws back a corresponding message with given default video link.
     - delete - which deletes the given video folder and database record, based on video_id parameter
+        http://127.0.0.1:8000/delete/Bv3RwP1Tqir
+        {"message":"Successfully deleted!","response":true}
+
+        or if it's already deleted or not accessible
+        {"message":"No such file or directory","response":404}
 ```
 
 ### Setup Instructions
