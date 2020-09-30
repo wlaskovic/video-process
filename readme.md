@@ -3,7 +3,8 @@
 
 ### Short Description of Project
 ```
-This project was made for uploading certain videos and converting them into .mp4 and .webm in two formats 720p, 360p.
+This project was made for uploading certain videos
+and converting them into .mp4 and .webm in two formats 720p, 360p.
 The base of this API is forked from waleedahmad laravel-stream project, using FFMpeg library.
 https://ffmpeg.org/download.html
 
@@ -24,6 +25,7 @@ The project, API has 3 main parts:
 
         Otherwise, if the link is broken or doesn't meet the requirements then throws 
         back a corresponding message.
+    - delete - which deletes the given video folder and database record, based on video_id parameter
 ```
 
 ### Setup Instructions
