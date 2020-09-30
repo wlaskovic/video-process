@@ -22,7 +22,8 @@ The project, API has 3 main parts:
             "response": 200
         }
 
-        Otherwise, if the link is broken or doesn't meet the requirements then throws back a corresponding message.
+        Otherwise, if the link is broken or doesn't meet the requirements then throws 
+        back a corresponding message.
 ```
 
 ### Setup Instructions
@@ -45,7 +46,8 @@ FFPROBE_BINARIES=''
 ```
 ### Additional Instructions for Setup
 ```
-# if you are gonna use the app on local machine probably you gonna have to add the ffmpeg and ffprobe exe file to the PATH
+# if you are gonna use the app on local machine probably you gonna have to add the 
+ffmpeg and ffprobe exe file to the PATH
 # in this case I put it into /app directory and refer to it
 
 # I'm using Laravel version 7.3.12
