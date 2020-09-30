@@ -40,6 +40,7 @@ class VideoController extends Controller
         $video_id = str_random(11);
         $path = $video_id . '.' . $request->video->getClientOriginalExtension();
         $request->video->storeAs('public', $path);
+
         while (Video::where('video_id', '=', $video_id)->exists()) {
             $video_id = str_random(11);
         }
@@ -56,28 +57,39 @@ class VideoController extends Controller
     }
 
     public function retrieve($video_id, $quality = 720, $format = 'mp4') {
-        $not_found_message = 'The searched video was not found or is still under process, try again few second later!';
-        if (!empty($video_id)) {
+        $not_found_message = 'The searched video was not found or is still under process, try again few seconds later!';
+
+        if (!empty($video_id) && count(Video::where('video_id', '=', $video_id)->get())) {
+
             $check_video_queue = Video::where('video_id', '=', $video_id)->where('processed', '=', '0')->get();
+
             if (count($check_video_queue) > 0) {
                 return 
                 response()
                 ->json(
                     [
                         'video_link' => url('storage/' . Config::get('app.default_video')),
-                        'message' => $not_found_message
+                        'message' => $not_found_message,
+                        'response' => 404
                     ], 
                     404,
                     [],
                     JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
             }
 
-            if (file_exists(public_path('storage/' . $video_id . '/' . $video_id . '-' . $quality . '.' . $format))) {
-                $video_link = 'storage/' . $video_id . '/' . $video_id . '-' . $quality . '.' . $format;
-                return 
+            $video_link = 'storage/' . $video_id . '/' . $video_id . '-' . $quality . '.' . $format;
+
+            if (file_exists(public_path($video_link))) {
+                return
                 response()
                 ->json(
-                    ['video_link' => url($video_link)], 200, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
+                    [
+                        'video_link' => url($video_link),
+                        'response' => 200
+                    ],
+                    200,
+                    [],
+                    JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
             }
         }
         else {
@@ -90,13 +102,13 @@ class VideoController extends Controller
             if (Storage::exists('converted_videos/' . $video_id)) {
                 Video::where('video_id', $video_id)->delete();
                 Storage::deleteDirectory('converted_videos/' . $video_id);
-                return response()->json(['Successfully deleted'], 200);
+                return response()->json(['message' => 'Successfully deleted!', 'response' => true], 204);
             }
             else {
                 return response()->json(['No such file or directory'], 404);
             }
         } catch (\RunTimeException $e) {
-            dd('Whoops: ' . $e->getMessage());
+            echo $e->getMessage();
         }
     }
 }
