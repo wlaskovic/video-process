@@ -58,7 +58,6 @@ class VideoController extends Controller
 
     public function retrieve($video_id, $quality = 720, $format = 'mp4') {
         $not_found_message = 'The searched video was not found or is still under process, please try again few seconds later!';
-        dd('restrieve');
         if (!empty($video_id) && count(Video::where('video_id', '=', $video_id)->get())) {
 
             $check_video_queue = Video::where('video_id', '=', $video_id)->where('processed', '=', '0')->get();
@@ -101,8 +100,6 @@ class VideoController extends Controller
     }
 
     public function destroy($video_id) {
-        // dd('destroy');
-
         try {
             if (Storage::exists('converted_videos/' . $video_id)) {
                 if (Video::where('video_id', $video_id)->delete() && Storage::deleteDirectory('converted_videos/' . $video_id))
