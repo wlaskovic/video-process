@@ -37,14 +37,24 @@ class VideoController extends Controller
      */
     public function store(StoreVideoRequest $request)
     {
+        // generate unique id for DB
+
         $video_id = str_random(11);
+
+        // create path for storing converted files
+
         $path = $video_id . '.' . $request->video->getClientOriginalExtension();
+
         $request->video->storeAs('public', $path);
+
+        // checking if the generated id is unique, if no, then generate until it will be
 
         while (Video::where('video_id', '=', $video_id)->exists()) {
             $video_id = str_random(11);
         }
         
+        //  creating Video instance for dispatch to ConvertVideoForStreaming job for conversion
+
         $video = Video::create([
             'video_id'      => $video_id,
             'disk'          => 'public',
@@ -53,14 +63,27 @@ class VideoController extends Controller
             'title'         => $request->title,
         ]);
 
-        return ConvertVideoForStreaming::dispatch($video) ? response()->json(['video_id' => $video_id], 200) : response()->json('Error');
+        return ConvertVideoForStreaming::dispatch($video) ? response()->json(['video_id' => $video_id], 200) : response()->json(
+            [
+                'message' => 'Error!',
+                'response' => 500
+            ],
+            500,
+            [],
+            JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
     }
 
+    // API endpoint for retrieving the video status
+
     public function retrieve($video_id, $quality = 720, $format = 'mp4') {
+
         $not_found_message = 'The searched video was not found or is still under process, please try again few seconds later!';
+
         if (!empty($video_id) && count(Video::where('video_id', '=', $video_id)->get())) {
 
             $check_video_queue = Video::where('video_id', '=', $video_id)->where('processed', '=', '0')->get();
+
+            // check if the video is under process or not, and returning the correct response
 
             if (count($check_video_queue) > 0) {
                 return 
@@ -70,15 +93,15 @@ class VideoController extends Controller
                         'video_link' => url('storage/' . Config::get('app.default_video')),
                         'message' => $not_found_message,
                         'response' => 404
-                    ], 
+                    ],
                     404,
                     [],
                     JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
             }
 
-            $video_link = 'storage/' . $video_id . '/' . $video_id . '-' . $quality . '.' . $format;
+            $video_link = $video_id . '/' . $video_id . '-' . $quality . '.' . $format;
 
-            if (file_exists(public_path($video_link))) {
+            if (Storage::disk('videos')->exists($video_link)) {
                 return
                 response()
                 ->json(
@@ -98,6 +121,8 @@ class VideoController extends Controller
             return response()->json(['message' => $not_found_message], 404);
         }
     }
+
+    // API endpoint for delete video, and retrieving status
 
     public function destroy($video_id) {
         try {
