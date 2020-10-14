@@ -40,19 +40,24 @@ class VideoController extends Controller
         // generate unique id for DB
 
         $video_id = str_random(11);
-
-        // create path for storing converted files
-
-        $path = $video_id . '.' . $request->video->getClientOriginalExtension();
-
-        $request->video->storeAs('public', $path);
-
-        // checking if the generated id is unique, if no, then generate until it will be
-
-        while (Video::where('video_id', '=', $video_id)->exists()) {
-            $video_id = str_random(11);
+        
+        // checking if the generated id is unique, if no, then regenerate until it will be
+        
+        $c = 0;
+        
+        if (Video::where('video_id', '=', $video_id)->exists()) {
+            do {
+                $video_id = str_random(11);
+                $c++;
+            } while ($c < Config::get('app.unique_id_loop_limit') && Video::where('video_id', '=', $video_id)->exists());
         }
         
+        // create path for storing converted files
+        
+        $path = $video_id . '.' . $request->video->getClientOriginalExtension();
+        
+        $request->video->storeAs('public', $path);
+
         //  creating Video instance for dispatch to ConvertVideoForStreaming job for conversion
 
         $video = Video::create([
@@ -65,7 +70,7 @@ class VideoController extends Controller
 
         return ConvertVideoForStreaming::dispatch($video) ? response()->json(['video_id' => $video_id], 200) : response()->json(
             [
-                'message' => 'Error!',
+                'message' => 'Error! Something went wrong with uploading the file!',
                 'response' => 500
             ],
             500,

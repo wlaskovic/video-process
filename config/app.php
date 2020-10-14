@@ -226,6 +226,8 @@ return [
     'converted_formats' => [
         'mp4' => [720, 360],
         'webm' => [720, 360],
-    ]
+    ],
+
+    'unique_id_loop_limit' => 100,
 
 ];
